@@ -25,7 +25,7 @@ public class MixinEnchantmentHelper {
     private static void getEnchantmentCost(RandomSource random, int enchantNum, int power, ItemStack stack, CallbackInfoReturnable<Integer> cir) {
         int minCost = random.nextInt(8) + 1 + (power >> 1) + random.nextInt(power + 1);
         minCost = enchantNum == 0 ? Math.max(minCost / 3, 1) : enchantNum == 1 ? minCost * 2 / 3 + 1 : Math.max(minCost, power * 2);
-        cir.setReturnValue(stack.getMaxStackSize() == 1 ? minCost : minCost + (stack.getEnchantmentTags().size() * 3));
+        cir.setReturnValue(minCost + (stack.getEnchantmentTags().size() * 3));
     }
 
     @Inject(method = "getAvailableEnchantmentResults", at = @At("HEAD"), cancellable = true)
@@ -46,14 +46,14 @@ public class MixinEnchantmentHelper {
             return;
         }
 
-        ResourceLocation resourcelocation = getEnchantmentId(enchantment);
-        ListTag listtag = stack.getEnchantmentTags();
+        ResourceLocation enchantmentId = getEnchantmentId(enchantment);
+        ListTag enchantmentTags = stack.getEnchantmentTags();
 
         int totalLevel = 0;
-        for (int i = 0; i < listtag.size(); ++i) {
-            CompoundTag compoundtag = listtag.getCompound(i);
-            ResourceLocation resourcelocation1 = EnchantmentHelper.getEnchantmentId(compoundtag);
-            if (resourcelocation1 != null && resourcelocation1.equals(resourcelocation)) {
+        for (int i = 0; i < enchantmentTags.size(); ++i) {
+            CompoundTag compoundtag = enchantmentTags.getCompound(i);
+            ResourceLocation tagEnchantmentId = EnchantmentHelper.getEnchantmentId(compoundtag);
+            if (tagEnchantmentId != null && tagEnchantmentId.equals(enchantmentId)) {
                 totalLevel += EnchantmentHelper.getEnchantmentLevel(compoundtag);
             }
         }

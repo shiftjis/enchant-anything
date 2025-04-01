@@ -16,23 +16,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(BlockBehaviour.class)
 public class MixinBlockBehaviour {
-
     @Unique
-    private Player player;
+    private Player enchant_anything$player;
 
     @Inject(method = "getDestroyProgress", at = @At("HEAD"))
     public void getDestroyProgressHead(BlockState state, Player player, BlockGetter level, BlockPos pos, CallbackInfoReturnable<Float> cir) {
-        this.player = player;
+        this.enchant_anything$player = player;
     }
 
     @Redirect(method = "getDestroyProgress", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getDestroySpeed(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)F"))
     public float getDestroyProgress(BlockState instance, BlockGetter blockGetter, BlockPos blockPos) {
-        int enchantmentLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.BLOCK_EFFICIENCY, player);
+        int enchantmentLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.BLOCK_EFFICIENCY, enchant_anything$player);
         float destroySpeed = instance.getDestroySpeed(blockGetter, blockPos);
         if (enchantmentLevel > 100) {
             destroySpeed = Math.max(destroySpeed, 100);
         }
-
         return destroySpeed;
     }
 }
